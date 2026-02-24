@@ -1,0 +1,38 @@
+service: sha-processor
+
+provider:
+  name: aws
+  runtime: nodejs20.x
+  timeout: 60
+  region: us-east-1
+  environment:
+    REDIS_URL: redis://localhost:6379
+
+plugins:
+  - serverless-offline
+
+custom:
+  serverless-offline:
+    nodeWorkerThreads: true
+    noPrependStageInUrl: true
+    allowCache: true
+
+functions:
+  api:
+    handler: src/handler.handler
+    events:
+      - http:
+          path: sha
+          method: post
+          cors: true
+      - http:
+          path: triggered
+          method: post
+      - http:
+          path: users
+          method: post
+
+  periodic:
+    handler: src/periodicTasks.handler
+    events:
+      - schedule: rate(1 minute)
