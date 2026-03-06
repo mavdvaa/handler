@@ -9,7 +9,7 @@ import bcrypt from 'bcrypt'
 //подключение к редис
 const client = createClient()
 if (!client.isOpen) {
-    await client.connect().catch(err => console.log("Redis Connect Error:", err));
+    await client.connect().catch(err => console.log("Ошибка подключения к Redis:", err));
 }
 
 //функция
@@ -27,7 +27,7 @@ export const handler = async (event, context) => {
             return await registration(event)
         }
 
-        return { statusCode: 404 }
+        return { statusCode: 400 }
     }
 
 }
@@ -48,10 +48,18 @@ async function registration(event) {
 
     if (!checkUser) {
         await userAuthorization(userId, hashedPassword)
-    }
+    } else
 
     return {
-        statusCode: 202
+        statusCode: 400,
+        body: JSON.stringify({message: `Пользователь с id ${userId} уже существует`})
+    }
+
+    console.log(`Пользователь с id ${userId} уже существует`)
+
+    return {
+        statusCode: 202,
+        body: JSON.stringify({message: `Пользователь с id ${userId} успешно зарегистрирован`}),
     }
 }
 
@@ -75,17 +83,19 @@ async function triggeredTask(event) {
 
     if (!checkDifficiltyTrigg) {
         return {
+            statusCode: 400,
             body: JSON.stringify({ message: `Уровень сложности не должен быть меньше 1 или больше 3` })
         }
     }
 
     if (!checkUserTrigg) {
         return {
+            statusCode: 400,
             body: JSON.stringify({ message: `Пользователя с id ${userId} не существует` })
         }
     }
 
-    await triggeredTaskDb(userId, difficulty, stepT[difficulty - 1], jobId)
+    await triggeredTaskDb(userId, difficulty, stepT[difficulty - 1], jobId, Date.now())
 
     const signature = sign(data)
     const signedData = {
@@ -132,6 +142,7 @@ async function handleShaApi(event) {
 
     if (!checkDifficiltySHA) {
         return {
+            statusCode: 400,
             body: JSON.stringify({ message: `Уровень сложности не должен быть меньше 1 или больше 4` })
         }
     }
@@ -142,7 +153,7 @@ async function handleShaApi(event) {
         }
     }
 
-    await shaTaskDb(userId, text, difficulty, jobId)
+    await shaTaskDb(userId, text, difficulty, jobId, Date.now())
 
     const signature = sign(data)
     const signedData = {

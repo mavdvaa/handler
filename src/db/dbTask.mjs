@@ -1,28 +1,28 @@
 import { pool } from "./db.mjs"
-export async function shaTaskDb(userId, text, difficulty, jobId) {
+export async function shaTaskDb(userId, text, difficulty, jobId, time) {
     const shaTable = await pool.query(`
-    INSERT INTO sha_tasks (user_id, text, difficulty, job_id)
-    VALUES ($1, $2, $3, $4)
+    INSERT INTO sha_tasks (user_id, text, difficulty, job_id, created_time)
+    VALUES ($1, $2, $3, $4, $5)
     RETURNING *`,
-    [userId, text, difficulty, jobId])
+    [userId, text, difficulty, jobId, time])
     
 }
 
-export async function periodicTaskDb(userId, check, jobId) {
+export async function periodicTaskDb(userId, check, jobId, time) {
     const periodTable = await pool.query(`
-    INSERT INTO periodic_tasks (user_id, number, job_id)
-    VALUES ($1, $2, $3)
+    INSERT INTO periodic_tasks (user_id, number, job_id, created_time)
+    VALUES ($1, $2, $3, $4)
     RETURNING *`,
-    [userId, check, jobId])
+    [userId, check, jobId, time])
     
 }
 
-export async function triggeredTaskDb(userId, difficulty, range, jobId) {
+export async function triggeredTaskDb(userId, difficulty, range, jobId, time) {
     const triggeredTable = await pool.query(`
-    INSERT INTO triggered_tasks (user_id, difficulty, range, job_id)
-    VALUES ($1, $2, $3, $4)
+    INSERT INTO triggered_tasks (user_id, difficulty, range, job_id, created_time)
+    VALUES ($1, $2, $3, $4, $5)
     RETURNING *`,
-    [userId, difficulty, range, jobId])
+    [userId, difficulty, range, jobId, time])
     
 }
 

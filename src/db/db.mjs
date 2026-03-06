@@ -41,6 +41,7 @@ export async function initDB() {
     user_id INT,
     FOREIGN KEY (user_id) REFERENCES users(id),
     task_time FLOAT,
+    created_time BIGINT,
     number_id SERIAL UNIQUE
     )
     `)
@@ -58,6 +59,7 @@ export async function initDB() {
     user_id INT,
     FOREIGN KEY (user_id) REFERENCES users(id),
     task_time FLOAT,
+    created_time BIGINT,
     number_id SERIAL UNIQUE
     )
     `)
@@ -74,6 +76,7 @@ export async function initDB() {
       user_id INT,
       FOREIGN KEY (user_id) REFERENCES users(id), 
       task_time FLOAT,
+      created_time BIGINT,
       number_id SERIAL UNIQUE
     )
   `)

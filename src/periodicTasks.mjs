@@ -34,7 +34,7 @@ export const handler = async () => {
 
     const jobId = randomUUID()
 
-    await periodicTaskDb(userId, check, jobId)
+    await periodicTaskDb(userId, check, jobId, Date.now())
 
     const signature = sign(data)
 
