@@ -28,7 +28,7 @@ export async function initDB() {
     )
   `)
 
-// await pool.query(`ALTER TABLE sha_tasks ADD COLUMN number_id SERIAL UNIQUE`)
+ //await pool.query(`ALTER TABLE sha_tasks ADD COLUMN i INT`)
 
   // periodic
   await pool.query(`
@@ -77,7 +77,8 @@ export async function initDB() {
       FOREIGN KEY (user_id) REFERENCES users(id), 
       task_time FLOAT,
       created_time BIGINT,
-      number_id SERIAL UNIQUE
+      number_id SERIAL UNIQUE,
+      i INT
     )
   `)
     // periodoc ответы

@@ -1,7 +1,6 @@
 import { randomUUID } from 'crypto'
 import { createClient } from 'redis'
 import { publicKey, sign } from './crypto/cryptoPackage.mjs'
-import { initDB } from './db/db.mjs'
 import { periodicTaskDb, userVerification } from './db/dbTask.mjs'
 
 //подключение к редис
@@ -10,7 +9,6 @@ if (!client.isOpen) {
     await client.connect().catch(err => console.log("Redis Connect Error:", err));
 }
 
-initDB()
 
 //функция
 export const handler = async () => {

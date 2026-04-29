@@ -4,7 +4,10 @@ import { publicKey, sign } from './crypto/cryptoPackage.mjs'
 import { countT, count, stepT, step } from './scaling/scaling.mjs'
 import { shaTaskDb, triggeredTaskDb, userVerification, userAuthorization } from './db/dbTask.mjs'
 import bcrypt from 'bcrypt'
+import { getShaTasks, getTriggeredTasks, getPeriodicTasks, getUserStats } from './db/dbFront.mjs'
+import { initDB } from './db/db.mjs'
 
+await initDB()
 
 //подключение к редис
 const client = createClient()
@@ -27,9 +30,45 @@ export const handler = async (event, context) => {
             return await registration(event)
         }
 
+        if (event.path == '/tasks' && event.httpMethod == 'GET') {
+            return await getTasks(event)
+        }
+
         return { statusCode: 400 }
     }
 
+}
+
+// получатть для фронта
+export async function getTasks(event) {
+    const userId = event.queryStringParameters.userId;
+
+    // 1. Получаем результаты (это объекты со служебной инфой)
+    const shaRes = await getShaTasks(userId);
+    const triggeredRes = await getTriggeredTasks(userId);
+    const periodicRes = await getPeriodicTasks(userId);
+
+    // 2. Извлекаем именно ДАННЫЕ из .rows
+    const tasks = [
+        ...(shaRes.rows || []).map(t => ({ ...t, type: 'sha' })),
+        ...(triggeredRes.rows || []).map(t => ({ ...t, type: 'triggered' })),
+        ...(periodicRes.rows || []).map(t => ({ ...t, type: 'periodic' }))
+    ];
+
+    // 3. Статистика тоже должна возвращать данные, а не объект запроса
+    const statsRes = await getUserStats(userId);
+    // Если getUserStats уже возвращает объект со свойствами, оставляем так
+    // Если она возвращает результат db.query, то нужно statsRes.rows[0]
+    const stats = statsRes; 
+
+    return {
+        statusCode: 200,
+        headers: {
+            'Access-Control-Allow-Origin': '*',
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ tasks, stats })
+    };
 }
 
 
@@ -95,7 +134,7 @@ async function triggeredTask(event) {
         }
     }
 
-    await triggeredTaskDb(userId, difficulty, stepT[difficulty - 1], jobId, Date.now())
+    await triggeredTaskDb(userId, difficulty, stepT[difficulty - 1] * countT[difficulty - 1], jobId, Date.now())
 
     const signature = sign(data)
     const signedData = {
@@ -140,6 +179,13 @@ async function handleShaApi(event) {
     const checkUserSHA = await userVerification(userId)
     const checkDifficiltySHA = (difficulty > 0 && difficulty < 5) ? true : false
 
+    if (!checkUserSHA) {
+        return {
+            statusCode: 400,
+            body: JSON.stringify({ message: `Пользователя с id ${userId} не существует` })
+        }
+    }
+
     if (!checkDifficiltySHA) {
         return {
             statusCode: 400,
@@ -147,13 +193,8 @@ async function handleShaApi(event) {
         }
     }
 
-    if (!checkUserSHA) {
-        return {
-            body: JSON.stringify({ message: `Пользователя с id ${userId} не существует` })
-        }
-    }
 
-    await shaTaskDb(userId, text, difficulty, jobId, Date.now())
+    await shaTaskDb(userId, text, difficulty, jobId, '0'.repeat(parseInt(difficulty)), Date.now())
 
     const signature = sign(data)
     const signedData = {

@@ -1,10 +1,11 @@
 import { pool } from "./db.mjs"
-export async function shaTaskDb(userId, text, difficulty, jobId, time) {
+
+export async function shaTaskDb(userId, text, difficulty, jobId, prefix, time) {
     const shaTable = await pool.query(`
-    INSERT INTO sha_tasks (user_id, text, difficulty, job_id, created_time)
-    VALUES ($1, $2, $3, $4, $5)
+    INSERT INTO sha_tasks (user_id, text, difficulty, job_id, prefix, created_time)
+    VALUES ($1, $2, $3, $4, $5, $6)
     RETURNING *`,
-    [userId, text, difficulty, jobId, time])
+    [userId, text, difficulty, jobId, prefix, time])
     
 }
 
