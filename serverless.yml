@@ -18,9 +18,11 @@ custom:
     allowCache: true
 
 functions:
+
   
 
   api:
+  
     handler: src/handler.handler
     events:
       - http:

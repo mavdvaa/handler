@@ -39,26 +39,21 @@ export const handler = async (event, context) => {
 
 }
 
-// получатть для фронта
+// для фронта
 export async function getTasks(event) {
     const userId = event.queryStringParameters.userId;
 
-    // 1. Получаем результаты (это объекты со служебной инфой)
     const shaRes = await getShaTasks(userId);
     const triggeredRes = await getTriggeredTasks(userId);
     const periodicRes = await getPeriodicTasks(userId);
 
-    // 2. Извлекаем именно ДАННЫЕ из .rows
     const tasks = [
         ...(shaRes.rows || []).map(t => ({ ...t, type: 'sha' })),
         ...(triggeredRes.rows || []).map(t => ({ ...t, type: 'triggered' })),
         ...(periodicRes.rows || []).map(t => ({ ...t, type: 'periodic' }))
     ];
 
-    // 3. Статистика тоже должна возвращать данные, а не объект запроса
     const statsRes = await getUserStats(userId);
-    // Если getUserStats уже возвращает объект со свойствами, оставляем так
-    // Если она возвращает результат db.query, то нужно statsRes.rows[0]
     const stats = statsRes; 
 
     return {

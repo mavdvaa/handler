@@ -33,7 +33,6 @@ export async function getUserStats(userId) {
         done_tasks: row.count_sha_tasks + row.count_triggered_tasks + row.count_periodic_tasks,
         success_tasks: row.count_right_sha_tasks + row.count_right_triggered_tasks + row.count_right_periodic_tasks,
         
-        // ✅ Добавляем детальные счетчики
         sha_tasks: row.count_sha_tasks,
         triggered_tasks: row.count_triggered_tasks,
         periodic_tasks: row.count_periodic_tasks
