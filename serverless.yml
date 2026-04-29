@@ -18,13 +18,7 @@ custom:
     allowCache: true
 
 functions:
-  getTasks:
-    handler: src/handler.getTasks # Путь: папка src -> файл handler -> функция getTasks
-    events:
-      - http:
-          path: tasks
-          method: get
-          cors: true
+  
 
   api:
     handler: src/handler.handler

@@ -1,4 +1,4 @@
-import { pool } from "./db.mjs"
+/*import { pool } from "./db.mjs"
 export async function getShaTasks(userId) {
     return await pool.query('SELECT job_id, status, is_right FROM sha_tasks WHERE user_id=$1', [userId])
 }
@@ -38,4 +38,4 @@ export async function getUserStats(userId) {
         triggered_tasks: row.count_triggered_tasks,
         periodic_tasks: row.count_periodic_tasks
     };
-}
+} */

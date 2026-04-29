@@ -4,7 +4,7 @@ import { publicKey, sign } from './crypto/cryptoPackage.mjs'
 import { countT, count, stepT, step } from './scaling/scaling.mjs'
 import { shaTaskDb, triggeredTaskDb, userVerification, userAuthorization } from './db/dbTask.mjs'
 import bcrypt from 'bcrypt'
-import { getShaTasks, getTriggeredTasks, getPeriodicTasks, getUserStats } from './db/dbFront.mjs'
+//import { getShaTasks, getTriggeredTasks, getPeriodicTasks, getUserStats } from './db/dbFront.mjs'
 import { initDB } from './db/db.mjs'
 
 await initDB()

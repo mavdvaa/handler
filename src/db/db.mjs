@@ -18,17 +18,11 @@ export async function initDB() {
   await pool.query(`
     CREATE TABLE IF NOT EXISTS users (
       id INTEGER PRIMARY KEY,
-      password VARCHAR(255),
-      count_periodic_tasks INT,
-      count_right_periodic_tasks INT,
-      count_triggered_tasks INT,
-      count_right_triggered_tasks INT,
-      count_sha_tasks INT,
-      count_right_sha_tasks INT
+      password VARCHAR(255)
     )
   `)
 
- //await pool.query(`ALTER TABLE sha_tasks ADD COLUMN i INT`)
+  //await pool.query(`ALTER TABLE sha_tasks ADD COLUMN i INT`)
 
   // periodic
   await pool.query(`
@@ -81,14 +75,14 @@ export async function initDB() {
       i INT
     )
   `)
-    // periodoc ответы
+  // periodoc ответы
   await pool.query(`
     CREATE TABLE IF NOT EXISTS periodic_right_answers (
       periodic_right INT[]
     )
   `)
   // triggered ответы
-    await pool.query(`
+  await pool.query(`
     CREATE TABLE IF NOT EXISTS triggered_right_answers (
       difficulty INT,
       right_count INT,
@@ -98,6 +92,24 @@ export async function initDB() {
 
   console.log('Таблицы созданы')
 }
-// проверка пользователя
 
+// статистика пользователей
+await pool.query(`
+  CREATE OR REPLACE VIEW user_stats AS
+  WITH base_counts AS (
+    SELECT 
+        u.id,
+        (SELECT count(*) FROM periodic_tasks p WHERE p.user_id = u.id AND status = true) AS periodic_total,
+        (SELECT count(*) FROM periodic_tasks p WHERE p.user_id = u.id AND is_right = true AND status = true) AS periodic_right,
+        (SELECT count(*) FROM sha_tasks s WHERE s.user_id = u.id AND status = true) AS sha_total,
+        (SELECT count(*) FROM sha_tasks s WHERE s.user_id = u.id AND is_right = true AND status = true) AS sha_right,
+        (SELECT count(*) FROM triggered_tasks t WHERE t.user_id = u.id AND status = true) AS triggered_total,
+        (SELECT count(*) FROM triggered_tasks t WHERE t.user_id = u.id AND is_right = true AND status = true) AS triggered_right
+    FROM users u
+)
+    SELECT 
+    *,
+    (((periodic_right+sha_right+triggered_right) * 100)/(periodic_total + sha_total + triggered_total)) AS "stat %"
+FROM base_counts;
+`)
 
